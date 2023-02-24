@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Chain</title>
+    <link rel="stylesheet" href="mouse.css">
+    <script type="text/javascript" src="lib/paper/paper-full.js"></script>
+    <script type="text/paperscript" canvas="canvas">
+        // Adapted from the following Processing example:
+        // http://processing.org/learning/topics/follow3.html
+
+        var points = 25;
+
+        var length = 45;
+
+        var color = '#'+(Math.random() * 0xFFFFFF << 0).toString(16).padStart(6, '0');
+        var size = Math.random() * 10 + 10;
+        var path = new Path({
+            strokeColor: color,
+            strokeWidth: size,
+            strokeCap: 'round'
+        });
+
+        // Add initial points to the path
+        var start = paper.view.center / [10, 1];
+        for (var i = 0; i < points; i++) {
+            var point = start + new paper.Point(i * length, 0);
+            var color = '#'+(Math.random() * 0xFFFFFF << 0).toString(16).padStart(6, '0');
+            var size = Math.random() * 10 + 10;
+            path.add({
+                point: point,
+                strokeColor: color,
+                size: size,
+                strokeCap: 'round'
+            });
+            path.strokeWidth = size;
+        }
+
+        // Set up event listeners for the cursor line
+        function onMouseMove(event) {
+            var color = "#" + Math.floor(Math.random()*16777215).toString(16);
+            <!-- var size = Math.random() * 50 + 5; -->
+            path.strokeColor = color;
+            <!-- path.strokeWidth = size; -->
+            path.firstSegment.point = event.point;
+            for (var i = 0; i < points - 1; i++) {
+                var segment = path.segments[i];
+                var nextSegment = segment.next;
+                var vector = segment.point - nextSegment.point;
+                vector.length = length;
+                nextSegment.point = segment.point - vector;
+            }
+            path.smooth({ type: 'continuous' });
+        }
+
+        function onMouseDown(event) {
+            path.fullySelected = true;
+            var color = "#" + Math.floor(Math.random()*16777215).toString(16);
+            var size = Math.random() * 50 + 5;
+            path.strokeColor = color;
+            path.strokeWidth = size;
+        }
+
+        function onMouseUp(event) {
+            path.fullySelected = false;
+            var color = "#" + Math.floor(Math.random()*16777215).toString(16);
+            path.strokeColor = color;
+        }
+    </script>
+</head>
+
+<body>
+    <canvas id="canvas" resize></canvas>
+</body>
+
+</html>
